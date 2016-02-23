@@ -1,0 +1,30 @@
+#!/usr/local/bin/prl -w
+
+use strict;
+
+#################################################
+##  TEXT SEGMENT CLASSIFIER
+##
+##    hw1b.prl < segment.data.train | more
+##
+#################################################
+
+@testlines = ( );
+@reallines = ( );
+$numlines = 0;
+
+$correct=0;
+$incorrect=0;
+$line = undef;
+
+while (defined ($line = <STDIN>)) {
+    chomp $line;
+
+    if () {
+
+    }
+    else {
+        $testlines[$numlines] = ($line =~ m/^[^\t]+\t(.*)/);
+        $reallines[$numlines] = ($line =~ m/^([^\t]+)\t/);
+    }
+}
