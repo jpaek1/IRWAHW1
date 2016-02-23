@@ -1,4 +1,4 @@
-#!/usr/local/bin/prl -w
+#!/usr/local/bin/perl -w
 
 use strict;
 
@@ -9,22 +9,89 @@ use strict;
 ##
 #################################################
 
-@testlines = ( );
-@reallines = ( );
-$numlines = 0;
+my @testlines = ( );
+my @reallines = ( );
+my $numlines = 0;
 
-$correct=0;
-$incorrect=0;
-$line = undef;
+my $line = undef;
+
+my $overallcorrect=0; my $overallincorrect=0; my $counter=0;
+my $count0=0;
+my $correct0=0;
+my $incorrect0=0;
+my $rulescounted=0;
+
 
 while (defined ($line = <STDIN>)) {
     chomp $line;
 
-    if () {
+    if ($line =~ /^#BLANK#/) {
+        &process_segment if $numlines;
 
+        print $line, "\n";
+
+        @testlines = ( );
+        @reallines = ( );
+        $numlines = 0;
     }
     else {
-        $testlines[$numlines] = ($line =~ m/^[^\t]+\t(.*)/);
-        $reallines[$numlines] = ($line =~ m/^([^\t]+)\t/);
+        ($testlines[$numlines]) = ($line =~ m/^[^\t]+\t(.*)/);
+        ($reallines[$numlines]) = ($line =~ m/^([^\t]+)\t/);
+        $counter += 1;
     }
+    $numlines += 1;
+}
+
+#print statistics
+print "=======================================================\n";
+print "| Rule Usage Statistics\n";
+print "|    Total Lines: ", $counter, "\n";
+print "|    Total Rules: ", $rulescounted, "\n";
+print "-------------------------------------------------------\n";
+print "| Rule 0 Usage Summary\n";
+print "|    Times Used: ", $count0, "\n";
+printf "|    Percentage: %.1f", $count0/$rulescounted*100; print "\n";
+print "|    Correct Uses: ", $correct0, "\n";
+printf "|    Correct Percentage: %.1f", $correct0/$count0*100; print "\n";
+print "|    Incorrect Uses: ", $incorrect0, "\n";
+printf "|    Incorrect Percentage: %.1f", $incorrect0/$count0*100; print "\n";
+print "-------------------------------------------------------\n";
+
+#################################################
+##  PROCESS_SEGMENT - determine the type of the line groups
+#################################################
+
+sub process_segment {
+    print "processing...\n";
+    my $i;
+    for ($i=0; $i<scalar @testlines; $i++) {
+        &ret(0,$reallines[$i],'PTEXT',$testlines[$i]);
+        $count0 += 1;
+    }
+    $rulescounted += 1;
+}
+
+
+
+sub ret {
+    my $rule       = shift;   # which rule did I use here
+    my $trueclass  = shift;   # what is the true sentence class ('NEOS','EOS')
+    my $givenclass = shift;   # what is the sentence class my rule gives
+    my $line       = shift;   # the actual line tested
+
+    if ($trueclass eq $givenclass) {
+        printf(".. (%2d) %s\t%s\t%s\n",$rule,$givenclass,$trueclass,$line);
+        if ($rule == 0) {
+            $correct0 += 1;
+        }
+        $overallcorrect += 1;
+    }
+    else {
+        printf("XX (%2d) %s\t%s\t%s\n",$rule,$givenclass,$trueclass,$line);
+        if ($rule == 0) {
+            $incorrect0 += 1;
+        }
+        $overallincorrect += 1;
+    }
+    ##$rulescounted += 1;
 }
